@@ -1,0 +1,105 @@
+body {
+  background: ghostwhite;
+}
+
+.stats {
+  display: flex;
+}
+
+.calculator {
+width: 450px;
+margin: auto;
+background: rgb(138, 138, 138);
+border: 1px solid black;
+box-shadow: 1px 1px 10px;
+}
+
+.input {
+  display: flex;
+}
+
+
+h2 {
+  text-transform: capitalize;
+  width: 150px;
+  margin: 0;
+  text-align: right;
+  margin-right: 8px;
+}
+
+input {
+  width: 50px;
+  font-weight: bold;
+}
+
+.ballistic {
+  display: flex;
+}
+
+h3 {
+  margin: 0 9px;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: flex-end;
+}
+.option {
+  cursor: pointer;
+  user-select: none;
+  font-weight: bold;
+}
+
+.option > input {
+  cursor: pointer;
+  width: 25px;
+}
+
+.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.two-column-bottom{
+  width: 90%;
+  margin: 10px auto 0 auto;
+  display: grid;
+  grid-template-columns: auto auto;
+}
+.two-column-bottom > h3 {
+  margin: 2px 9px;
+}
+
+.title {
+  margin: 8px auto 10px auto;
+  font-size: 24px;
+  width: 350px;
+  text-align: center;
+}
+
+h1 {
+  margin: 0 auto;
+  font-size: 24px;
+  cursor: pointer;
+  width: auto;
+  text-align: center;
+}
+
+.filler {
+  height: 28px;
+}
+
+.doubleWide {
+  grid-column: span 2;
+  text-align: center;
+}
+.bottomFiller {
+  height:26px;
+}
+.title-input {
+  height: 22px;
+  font-size: 24px;
+  width: 350px;
+  text-align: center;
+}
