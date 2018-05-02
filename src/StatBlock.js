@@ -1,45 +1,37 @@
 import React, { Component } from 'react';
 import Input from './Input'
-import './Stats.css';
+import './StatBlock.css';
 
-class Stats extends Component {
-  constructor(obj) {
+class StatBlock extends Component {
+  constructor(props) {
     super();
 
-    this.state = {
-      id: 0,
-      title: 'Title',
-      description: '',
-      shots: 36,
-      ballistic: 4,
-      hits: 0,
-      toughness: 4,
-      strength: 4,
-      wounds: 0,
-      armorPen: 0,
-      armorSave: 4,
-      invulnSave: 6,
-      rollToWound: 0,
-      damage: 0,
-      hitPercentage: 1,
-      fnpAmount: 6,
-      fnpChance: 1/6,
-      fnpDamage: 0,
-      woundPercentage: .50,
-      savePercentage: 0,
-      feelNoPain: false,
-      reRollOnesHits: false,
-      reRollOnesDamage: false,
-      cover: false,
-      editTitle: false,
-      damagePerShot: 1
-    };
+    this.state = props.block
   }
 
   handleChange = (property, value) => {
     const stringConverted = value.split('')
     const lastItem = stringConverted.length - 1;
     const aNumber = /^(0|[1-9]\d*)$/;
+
+    if(stringConverted.length == 1 && stringConverted[0].toUpperCase() === 'D') {
+      this.setState({damagePerShot: '1'})
+      return
+    }
+    if(stringConverted.length > 1) {
+      if(stringConverted[0].toUpperCase() === 'D' || stringConverted[1].toUpperCase() === 'D' && property === 'damagePerShot') {
+        if(stringConverted[1].toUpperCase() === 'D') {
+          stringConverted.reverse()
+        }
+        stringConverted[0] = stringConverted[0].toUpperCase()
+        if(stringConverted[2]) {
+          stringConverted[1] = stringConverted[2]
+          stringConverted.splice(1,1)
+        }
+        this.setState({damagePerShot: stringConverted.join('')})
+        return
+      }
+    }
     if(aNumber.test(stringConverted[lastItem])) {
       if(property === 'ballistic' && +stringConverted[lastItem] < 7) {
         if(+stringConverted[lastItem] === 0 || +stringConverted[lastItem] === 1) {
@@ -72,7 +64,6 @@ class Stats extends Component {
   }
 
   handleCheck(property, value) {
-    console.log(property, value);
     this.setState({[property]: value})
   }
 
@@ -126,7 +117,6 @@ class Stats extends Component {
       woundPercentage += (1/6) * (1 - ((rollToWound - 1) / 6))
     }
     if(this.state.woundPercentage !== woundPercentage || this.round(woundPercentage * this.state.hits) !== this.state.wounds) {
-      console.log();
       this.setState({woundPercentage, rollToWound, wounds: this.round(woundPercentage * this.state.hits)}, this.calculatePenetration)
       return
     }
@@ -157,7 +147,33 @@ class Stats extends Component {
       fnpChance = 1 - ((this.state.fnpAmount - 1) / 6)
     }
     if(fnpChance !== this.state.fnpChance || this.state.fnpDamage !== this.round(this.state.damage - (fnpChance * this.state.damage))) {
-      this.setState({fnpChance, fnpDamage: this.round(this.state.damage - (fnpChance * this.state.damage))})
+      this.setState({fnpChance, fnpDamage: this.round(this.state.damage - (fnpChance * this.state.damage))}, () => {
+        this.calculateAverageDamage()
+      })
+      return
+    }
+    this.calculateAverageDamage()
+  }
+
+  calculateAverageDamage() {
+    if(parseInt(this.state.damagePerShot)) {
+      if(this.state.totalDamage !== this.state.damagePerShot * this.state.damage && !this.state.feelNoPain) {
+        this.setState({totalDamage: this.state.damage * this.state.damagePerShot})
+      } else if(this.state.totalDamage !== this.state.damagePerShot * this.state.fnpDamage && this.state.feelNoPain) {
+        this.setState({totalDamage: this.state.fnpDamage * this.state.damagePerShot})
+      }
+    } else {
+      const die = parseInt(this.state.damagePerShot.split('')[1]);
+      let average = 0;
+      for(let i = 1; i <= die; i++) {
+        average += i;
+      }
+      average /= die;
+      if(this.state.totalDamage !== average * this.state.damage && !this.state.feelNoPain) {
+        this.setState({totalDamage: this.state.damage * average})
+      } else if(this.state.totalDamage !== average * this.state.fnpDamage && this.state.feelNoPain) {
+        this.setState({totalDamage: this.state.fnpDamage * average})
+      }
     }
   }
 
@@ -172,7 +188,6 @@ class Stats extends Component {
 
 
   render() {
-    // console.log(this.state);
     const {shots, ballistic, hits, toughness, strength, wounds, armorPen, armorSave, invulnSave, damage, hitPercentage, fnpAmount, fnpChance, fnpDamage, woundPercentage, savePercentage, feelNoPain, damagePerShot, reRollOnesDamage,cover, editTitle, title} = this.state
     return (
       <div className="calculator">
@@ -192,7 +207,7 @@ class Stats extends Component {
           <Input label='Save' property='armorSave' data={armorSave + '+'}handleChange={this.handleChangeDice}/>
           <Input label='Invuln Save' property='invulnSave' data={invulnSave + '+'}handleChange={this.handleChangeDice}/>
           <Input label='Damage' property='damagePerShot' data={damagePerShot} handleChange={this.handleChange}/>
-          {feelNoPain ? <Input label='FNP' property='fnpAmount' data={fnpAmount + '+'}handleChange={this.handleChangeDice}/>: <div className="filler"/>}
+          {feelNoPain ? <Input label='Feel No Pain' property='fnpAmount' data={fnpAmount + '+'}handleChange={this.handleChangeDice}/>: <div className="filler"/>}
         </div>
         <div className="two-column-bottom">
           <div className="option" onClick={() => {this.handleCheck("reRollOnesHits", !this.state.reRollOnesHits)}}>
@@ -214,9 +229,10 @@ class Stats extends Component {
           <h3>Save Chance: {this.round(savePercentage * 100)}%</h3>
           <h3>After Save: {damage}</h3>
           <h3 style={{display: this.state.feelNoPain ?'grid': 'none'}}>FNP Chance: {this.round(fnpChance * 100)}%</h3>
-          <h3 style={{display: this.state.feelNoPain ?'grid': 'none'}}>FNP Damage: {fnpDamage}</h3>
+          <h3 style={{display: this.state.feelNoPain ?'grid': 'none'}}>FNP Wounds: {fnpDamage}</h3>
           <div className='bottomFiller' style={{display: !this.state.feelNoPain ? 'grid': 'none'}}/>
           <div className='bottomFiller' style={{display: !this.state.feelNoPain ? 'grid': 'none'}}/>
+          <h3 className="doubleWide">Average Damage: {this.state.totalDamage}</h3>
           {this.state.feelNoPain ?
             <h3 className="doubleWide">Damage Chance Per Shot: {this.round((fnpDamage / shots) * 100)}%</h3>
             :
@@ -228,4 +244,4 @@ class Stats extends Component {
   }
 }
 
-export default Stats;
+export default StatBlock;

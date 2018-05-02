@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Stats from './Stats';
+import StatBlock from './StatBlock';
 
 class App extends Component {
   constructor(props) {
@@ -10,7 +10,7 @@ class App extends Component {
         id: 0,
         title: 'Title',
         description: '',
-        shots: 36,
+        shots: 12,
         ballistic: 4,
         hits: 0,
         toughness: 4,
@@ -33,17 +33,36 @@ class App extends Component {
         cover: false,
         editTitle: false,
         damagePerShot: 1,
+        totalDamage: 0,
       },
-      stats: [],
+      statBlocks: [],
       currentId: 0,
     };
   }
 
+  createStatBlock() {
+    const newBlock = { ...this.state.template };
+    newBlock.id = this.state.currentId;
+    this.setState({ statBlocks: [...this.state.statBlocks, newBlock], currentId: this.state.currentId + 1 });
+  }
+
+  componentDidMount() {
+    this.createStatBlock();
+  }
+
   render() {
+    const statBlocks = this.state.statBlocks.map(block => <StatBlock key={block.id} block={block} />);
     return (
       <div className="stats">
-        <Stats />
-        <Stats />
+        <div
+          className="add-block"
+          onClick={() => {
+            this.createStatBlock();
+          }}
+        >
+          Create Block
+        </div>
+        <section className="blocks">{statBlocks}</section>
       </div>
     );
   }
