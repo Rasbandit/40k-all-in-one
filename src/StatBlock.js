@@ -156,13 +156,14 @@ class StatBlock extends Component {
   }
 
   calculateAverageDamage() {
-    if(parseInt(this.state.damagePerShot)) {
+    if(parseInt(this.state.damagePerShot) || this.state.damagePerShot === 0) {
       if(this.state.totalDamage !== this.state.damagePerShot * this.state.damage && !this.state.feelNoPain) {
         this.setState({totalDamage: this.state.damage * this.state.damagePerShot})
       } else if(this.state.totalDamage !== this.state.damagePerShot * this.state.fnpDamage && this.state.feelNoPain) {
         this.setState({totalDamage: this.state.fnpDamage * this.state.damagePerShot})
       }
     } else {
+      console.log(this.state.damagePerShot);
       const die = parseInt(this.state.damagePerShot.split('')[1]);
       let average = 0;
       for(let i = 1; i <= die; i++) {
@@ -229,7 +230,7 @@ class StatBlock extends Component {
           <h3>Save Chance: {this.round(savePercentage * 100)}%</h3>
           <h3>After Save: {damage}</h3>
           <h3 style={{display: this.state.feelNoPain ?'grid': 'none'}}>FNP Chance: {this.round(fnpChance * 100)}%</h3>
-          <h3 style={{display: this.state.feelNoPain ?'grid': 'none'}}>FNP Wounds: {fnpDamage}</h3>
+          <h3 style={{display: this.state.feelNoPain ?'grid': 'none'}}>After FNP: {fnpDamage}</h3>
           <div className='bottomFiller' style={{display: !this.state.feelNoPain ? 'grid': 'none'}}/>
           <div className='bottomFiller' style={{display: !this.state.feelNoPain ? 'grid': 'none'}}/>
           <h3 className="doubleWide">Average Damage: {this.state.totalDamage}</h3>

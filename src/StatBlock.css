@@ -25,12 +25,14 @@ h2 {
   width: 155px;
   margin: 0;
   text-align: right;
-  margin-right: 8px;
+  margin-right: 2px;
 }
 
 input {
-  width: 50px;
+  width: 30px;
   font-weight: bold;
+  font-size: 18px;
+  text-align: center;
 }
 
 .ballistic {
